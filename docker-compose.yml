@@ -1,0 +1,214 @@
+# level=warning msg="C:\\Users\\marci\\.repo\\kafka-confluent\\docker-compose.platform.yml:
+# the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+# version: "3.8"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.4
+    container_name: zookeeper
+    hostname: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zk-data:/var/lib/zookeeper/data
+      - zk-txn-logs:/var/lib/zookeeper/log
+    networks:
+      - mylocal-net
+
+  kafka-broker-1:
+    image: confluentinc/cp-kafka:7.5.4
+    container_name: kafka-broker-1
+    hostname: kafka-broker-1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092" # container-to-container
+      - "29092:29092" # external tools on host
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # monitoring interceptor settings
+      # KAFKA_JMX_PORT: 9999
+      # Set up Monitoring Interceptors (for production and consumption metrics)
+      # KAFKA_CFG_CLIENT_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # KAFKA_CFG_BROKER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # CRITICAL: Inter-broker communication must use the internal PLAINTEXT listener
+      # KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    volumes:
+      - kafka-data-1:/var/lib/kafka/data
+    networks:
+      - mylocal-net
+
+  kafka-broker-2:
+    image: confluentinc/cp-kafka:7.5.4
+    container_name: kafka-broker-2 # <--- Unique container name
+    hostname: kafka-broker-2 # <--- Unique hostname
+    depends_on:
+      - zookeeper
+    ports:
+      - "9093:9092" # Exposing on host port 9093 (internal is 9092)
+      - "29093:29092" # Exposing external listener on host port 29093
+    environment:
+      KAFKA_BROKER_ID: 2 # <--- Unique broker ID (2)
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-2:9092,PLAINTEXT_HOST://localhost:29093 # <--- Updated hostname and external port
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # monitoring interceptor settings
+      # KAFKA_JMX_PORT: 9999
+      # Set up Monitoring Interceptors (for production and consumption metrics)
+      # KAFKA_CFG_CLIENT_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # KAFKA_CFG_BROKER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # CRITICAL: Inter-broker communication must use the internal PLAINTEXT listener
+      # KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    volumes:
+      - kafka-data-2:/var/lib/kafka/data # <--- Unique volume name
+    networks:
+      - mylocal-net
+
+  kafka-broker-3: # <--- New service
+    image: confluentinc/cp-kafka:7.5.4
+    container_name: kafka-broker-3 # <--- Unique container name
+    hostname: kafka-broker-3 # <--- Unique hostname
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9092" # Exposing on host port 9094 (internal is 9092)
+      - "29094:29092" # Exposing external listener on host port 29094
+    environment:
+      KAFKA_BROKER_ID: 3 # <--- Unique broker ID (3)
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker-3:9092,PLAINTEXT_HOST://localhost:29094 # <--- Updated hostname and external port
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      # monitoring interceptor settings
+      # KAFKA_JMX_PORT: 9999
+      # Set up Monitoring Interceptors (for production and consumption metrics)
+      # KAFKA_CFG_CLIENT_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor,io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # KAFKA_CFG_BROKER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      # CRITICAL: Inter-broker communication must use the internal PLAINTEXT listener
+      # KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    volumes:
+      - kafka-data-3:/var/lib/kafka/data # <--- Unique volume name
+    networks:
+      - mylocal-net
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.4
+    container_name: schema-registry
+    hostname: schema-registry
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
+    volumes:
+      - schema-registry-data:/var/lib/schema-registry # persist optional local state/logs
+      - schema-registry-logs:/var/log/confluent/schema-registry
+    networks:
+      - mylocal-net
+
+  connect:
+    #image: confluentinc/cp-kafka-connect:7.5.4
+    build:
+      context: .
+      dockerfile: Dockerfile.connect # <-- Use the custom Dockerfile
+    container_name: connect
+    hostname: connect
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+      - schema-registry
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
+      CONNECT_GROUP_ID: connect-cluster
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
+      CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_ADVERTISED_PORT: 8083
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+      # CONFLUENT_HUB_INSTALL_PLUGIN: "mongodb/kafka-connect-mongodb:1.10.0"          # deployed via Dockerfile.connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+    volumes:
+      - connect-plugins:/usr/share/confluent-hub-components # persists connector plugins
+      - connect-logs:/var/log/kafka
+    networks:
+      - mylocal-net
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.5.4
+    container_name: control-center
+    hostname: control-center
+    depends_on:
+      - kafka-broker-1
+      - kafka-broker-2
+      - kafka-broker-3
+      - schema-registry
+      - connect
+    ports:
+      - "19021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
+      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: connect:8083
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONTROL_CENTER_REPLICATION_FACTOR: 3
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 3
+      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: /
+    volumes:
+      - c3-data:/var/lib/confluent-control-center
+    networks:
+      - mylocal-net
+
+networks:
+  mylocal-net:
+    external: true
+
+volumes:
+  zk-data:
+  zk-txn-logs:
+  kafka-data-1:
+  kafka-data-2:
+  kafka-data-3:
+  connect-plugins:
+  connect-logs:
+  c3-data:
+  schema-registry-data:
+  schema-registry-logs:

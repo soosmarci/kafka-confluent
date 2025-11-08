@@ -1,0 +1,32 @@
+{
+    "name": "todo-mongo-source",
+    "config": {
+        "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+        "pipeline": "[]",
+        "tasks.max": "2",
+        "topic.creation.default.partitions": "3",
+        "topic.creation.default.replication.factor": "3",
+        "connection.uri": "mongodb://todo-database:27018/?my-replica-set=rs0",
+        "database": "todoapp",
+        "database.whitelist": "todoapp",
+        "collection": "todos",
+        "collection.whitelist": "todoapp.todos",
+        "publish.full.document.only": "false",
+        "output.format.value": "json",
+        "topic.prefix": "mongo",
+        "json.view.type": "STRICT",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "true",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "true",
+        "copy.existing": "true",
+        "copy.existing.max.threads": "1",
+        "copy.existing.queue.size": "16000",
+        "errors.tolerance": "all",
+        "errors.log.enable": "true",
+        "poll.await.time.ms": "1000",
+        "producer.override.batch.size": "16384",
+        "producer.override.linger.ms": "1000",
+        "producer.override.compression.type": "snappy"
+    }
+}

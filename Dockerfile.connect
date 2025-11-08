@@ -1,0 +1,13 @@
+# Use the official Confluent Kafka Connect image as the base
+FROM confluentinc/cp-kafka-connect:7.5.4
+
+# Set the environment variable to automatically install the connector
+ENV CONNECT_PLUGIN_INSTALL "mongodb/kafka-connect-mongodb:1.10.0,confluentinc/kafka-connect-replicator:7.5.4"
+
+# Run the installation command, which is handled by the base image's entrypoint.
+# We explicitly run it here to ensure it happens during the build layer.
+RUN confluent-hub install --no-prompt "mongodb/kafka-connect-mongodb:1.10.0" \
+    && confluent-hub install --no-prompt "confluentinc/kafka-connect-replicator:7.5.4" # This package includes the Connect interceptor
+
+# The plugin path is typically set correctly by the base image, but it's safe to confirm it here.
+ENV CONNECT_PLUGIN_PATH /usr/share/java,/usr/share/confluent-hub-components
