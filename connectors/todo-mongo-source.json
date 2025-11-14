@@ -1,0 +1,67 @@
+{
+  "name": "todo-mongo-source",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSourceConnector",
+    "pipeline": "[]",
+    "tasks.max": "2",
+    "topic.creation.default.partitions": "3",
+    "topic.creation.default.replication.factor": "3",
+    "connection.uri": "mongodb://todo-database:27018/?my-replica-set=rs0",
+    "database": "todoapp",
+    "database.whitelist": "todoapp",
+    "collection": "todos",
+    "collection.whitelist": "todoapp.todos",
+    "topic.prefix": "mongo",
+
+    "poll.await.time.ms": "1000",
+    "producer.override.batch.size": "16384",
+    "producer.override.linger.ms": "1000",
+    "producer.override.compression.type": "snappy",
+
+    "key.converter": "io.confluent.connect.json.JsonSchemaConverter",
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+    "key.converter.schemas.enable": "true",
+
+    "change.stream.document.key.as.key": "true",
+    "output.format.key": "schema",
+    "output.schema.key": "{\"type\":\"record\",\"name\":\"keySchema\",\"fields\":[{\"name\":\"documentKey._id\",\"type\":\"string\"}]}",
+
+    "output.format.value": "schema",
+    "value.converter": "io.confluent.connect.json.JsonSchemaConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+    "value.converter.schemas.enable": "true",
+    
+    "startup.mode": "copy_existing",
+    "startup.mode.copy.existing.max.threads": "1",
+    "startup.mode.copy.existing.queue.size": "16000",
+    "errors.tolerance": "all",
+    "errors.log.enable": "true",
+
+    "transforms": "FilterTombstones,FlattenKey,HeaderCopyKey,Flatten,HeaderCopy,Hoist",
+
+    "transforms.FilterTombstones.type": "org.apache.kafka.connect.transforms.Filter",
+    "transforms.FilterTombstones.predicate": "isTombstone",
+
+    "predicates": "isTombstone",
+    "predicates.isTombstone.type": "org.apache.kafka.connect.transforms.predicates.RecordIsTombstone",
+
+    "transforms.FlattenKey.type": "org.apache.kafka.connect.transforms.Flatten$Key",
+    "transforms.FlattenKey.delimiter": ".",
+
+    "transforms.Flatten.type": "org.apache.kafka.connect.transforms.Flatten$Value",
+    "transforms.Flatten.delimiter": ".",
+
+    "transforms.HeaderCopyKey.type": "org.apache.kafka.connect.transforms.HeaderFrom$Key",
+    "transforms.HeaderCopyKey.fields": "documentKey._id",
+    "transforms.HeaderCopyKey.headers": "oid",
+    "transforms.HeaderCopyKey.operation": "copy",
+
+    "transforms.HeaderCopy.type": "org.apache.kafka.connect.transforms.HeaderFrom$Value",
+    "transforms.HeaderCopy.fields": "operationType",
+    "transforms.HeaderCopy.headers": "operationType",
+    "transforms.HeaderCopy.operation": "copy",
+    
+    "transforms.Hoist.type": "org.apache.kafka.connect.transforms.HoistField$Value",
+    "transforms.Hoist.field": "payload"
+  }
+}

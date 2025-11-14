@@ -1,0 +1,49 @@
+{
+  "$id": "http://example.com/order.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "description": "Schema for a Kafka Order message value.",
+  "properties": {
+    "address": {
+      "additionalProperties": false,
+      "description": "Shipping address details.",
+      "properties": {
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zipcode": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "city",
+        "state",
+        "zipcode"
+      ],
+      "type": "object"
+    },
+    "itemid": {
+      "description": "Identifier for the ordered item.",
+      "type": "string"
+    },
+    "orderid": {
+      "description": "Unique identifier for the order.",
+      "type": "integer"
+    },
+    "ordertime": {
+      "description": "Timestamp of the order in milliseconds.",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "ordertime",
+    "orderid",
+    "itemid",
+    "address"
+  ],
+  "title": "Order",
+  "type": "object"
+}

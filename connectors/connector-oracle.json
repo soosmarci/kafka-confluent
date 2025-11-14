@@ -1,0 +1,32 @@
+{
+  "name": "oracle-employee-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.oracle.OracleConnector",
+    "tasks.max": "1",
+    
+    "database.hostname": "oracle-db-host", 
+    "database.port": "1521",
+    "database.user": "cdc_user",
+    "database.password": "cdc_password",
+    "database.dbname": "ORCLCDB", 
+    "database.server.name": "myserver",
+    
+    "table.include.list": "HR.EMPLOYEE", 
+    "topic.prefix": "cdc.oracle", 
+    
+    "snapshot.mode": "initial", 
+    "log.mining.strategy": "redo_log",
+    
+    "database.history.kafka.bootstrap.servers": "kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092",
+    "database.history.kafka.topic": "schema-history.oracle",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false",
+    
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "true"
+  }
+}
