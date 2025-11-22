@@ -35,6 +35,54 @@ docker compose down --volumes
 ```Bash
 curl -s GET http://schema-registry:8081/schemas
 ```
+
+# Connector
+
+## install connector plugin manually
+
+````Bash
+docker exec -it connect bash -lc \
+  "confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.10.0"
+````
+
+````Bash
+docker exec -it connect bash -lc \
+  "confluent-hub install --no-prompt debezium/debezium-connector-oracle:2.7.0"
+````
+
+## query connector REST queries
+
+````Bash
+curl -s http://localhost:8083/connector-plugins		  
+curl -s http://localhost:8083/connectors/
+curl -s http://localhost:8083/connectors/todo-mongo-source | jq
+curl -s http://localhost:8083/connectors/todo-mongo-source/status | jq
+````
+
+## create new connector
+
+````Bash
+curl -X POST http://localhost:8083/connectors \
+	 -H "Content-Type: application/json" \
+	 -d @connectors/mongo-todo-source.json
+````
+
+## update config
+
+ 1. Use 'jq' to extract the content of the "config" key from your file.
+ 2. Pipe the extracted JSON directly to 'curl' for the PUT request.
+
+````Bash
+cat connectors/todo-mongo-source-simple.json | jq '.config' | \
+curl -s -X PUT http://localhost:8083/connectors/todo-mongo-source/config \
+	-H "Content-Type: application/json" \
+	--data @-
+````
+
+````Bash
+curl -X POST http://localhost:8083/connectors/todo-mongo-source/tasks/0/restart
+````
+
 # Docker exec
 
 generic template
@@ -280,7 +328,7 @@ By delaying the Kafka container's start, you give Zookeeper the necessary grace 
 #### 3. Tuning Zookeeper Session Timeout 
 ⏱️If a broker crash occurs, the wait time for the ZNode to clear is determined by the session timeout.
 - **Property**: Configure `zookeeper.session.timeout.ms` in Kafka's `server.properties`.
-- **Action**: Reduce this value from the default (often 18,000ms or 45,000ms) to a lower, stable figure (e.g., 6,000ms).
+- **Action**: Reduce this value from the default (often 18 000 ms or 45 000 ms) to a lower, stable figure (e.g., 6 000 ms).
 - **Trade-off**: A shorter timeout results in faster failover and less wait time after a crash, but it must be longer than the maximum expected network latency or JVM Garbage Collection pause to prevent false "death" reports.
 
 #### 4. Migrate to KRaft (Kafka Raft) 
@@ -319,7 +367,7 @@ Re-post Connector: Run the curl command again. Since the configuration file name
 ```Bash
 curl -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
-  -d @todo-mongo-source.json
+  -d @connectors/todo-mongo-source-simple.json
 ```
 
 If the replica set on MongoDB is correctly initialized (which we suspected was the previous error), this command should now succeed, and your Kafka Connect source connector will be running!
