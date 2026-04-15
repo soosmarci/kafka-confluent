@@ -1,0 +1,7 @@
+{
+  "schema": {
+    "type": "string",
+    "optional": false
+  },
+  "payload": "{\"_id\": {\"_id\": {\"$oid\": \"690fa8a58b5b479787927a30\"}, \"copyingData\": true}, \"operationType\": \"insert\", \"documentKey\": {\"_id\": {\"$oid\": \"690fa8a58b5b479787927a30\"}}, \"fullDocument\": {\"_id\": {\"$oid\": \"690fa8a58b5b479787927a30\"}, \"task\": \"elso\", \"created_at\": {\"$date\": 1762633789603}, \"__v\": 0}, \"ns\": {\"db\": \"todoapp\", \"coll\": \"todos\"}}"
+}

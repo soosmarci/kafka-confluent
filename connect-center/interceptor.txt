@@ -1,0 +1,2 @@
+appuser@control-center
+	/usr/share/java/monitoring-interceptors/monitoring-interceptors-7.5.4.jar
