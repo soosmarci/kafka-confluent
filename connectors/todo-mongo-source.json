@@ -6,7 +6,7 @@
     "tasks.max": "2",
     "topic.creation.default.partitions": "3",
     "topic.creation.default.replication.factor": "3",
-    "connection.uri": "mongodb://todo-database:27018/?my-replica-set=rs0",
+    "connection.uri": "mongodb://todo-database:27018/?replicaSet=rs0",
     "database": "todoapp",
     "database.whitelist": "todoapp",
     "collection": "todos",

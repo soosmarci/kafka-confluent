@@ -53,7 +53,7 @@ docker exec -it connect bash -lc \
 ## query connector REST queries
 
 ````Bash
-curl -s http://localhost:8083/connector-plugins		  
+curl -s http://localhost:8083/connector-plugins
 curl -s http://localhost:8083/connectors/
 curl -s http://localhost:8083/connectors/todo-mongo-source | jq
 curl -s http://localhost:8083/connectors/todo-mongo-source/status | jq
@@ -64,7 +64,7 @@ curl -s http://localhost:8083/connectors/todo-mongo-source/status | jq
 ````Bash
 curl -X POST http://localhost:8083/connectors \
 	 -H "Content-Type: application/json" \
-	 -d @connectors/mongo-todo-source.json
+	 -d @connectors/todo-mongo-source.json
 ````
 
 ## update config
